@@ -1,0 +1,439 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1" />
+	<title>ESP Web Server</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<title>ESP Web Server</title>
+	<link rel="icon" href="data:,">
+	<link rel="shortcut icon" href="favicon.png">
+</head>
+
+<body">
+	<div class="navbar">
+		<h1>
+			<table>
+				<td width="52%" align="right"><span id="ProgName">%ProgName%</span>
+					<select id="MODE" size="1" onchange="select_mode();">
+						<option value="">--Режим работы--</option>
+						<option value="BACKLIGHT">Подсветка</option>
+						<option value="RAINBOW1">Переливающиеся цвета</option>
+						<option value="RAINBOW2">Радуга</option>
+						<option value="COLOR_MUSIC">Цветомузыка</option>
+						<option value="RUN_MUSIC">Бегущие частоты</option>
+						<option value="STROBE">Стробоскоп</option>
+						<!--option value="PREFERENCE">Настройки...</option-->
+					</select>
+				</td>
+				<td width="14%">
+					<input style="background-color: #bac2ca;" type="text" size="3" readonly="true" id="time"
+						value="0:00:00">
+				</td>
+				<td align="left">
+					<div style="position:relative;width:27px;height:20px;overflow:hidden;">
+						<img style="position:relative;left:-162px;" id="wifi_strength" src="gif\wifi_strength.gif">
+					</div>
+				</td>
+			</table>
+		</h1>
+	</div>
+	<div class="content">
+		<div class="tabs">
+			<input type="radio" name="inset" value="" id="tab_1" checked>
+			<label for="tab_1">Главная</label>
+			<input type="radio" name="inset" value="" id="tab_4">
+			<label for="tab_4">Система</label>
+			</input>
+			<input type="radio" name="inset" value="" id="tab_6">
+			<label for="tab_6">log</label>
+			</input>
+
+			<div id="txt_1">
+				<div align="left" class="card">
+					<div style="position:relative;">
+						Яркость<input type="range" min="0" max="255" value="0" id="BRIGHTNESS"
+							onchange="BrightnessChange()" style="width:240px;" />
+						<div>R<input type="range" min="0" max="255" value="0" id="BL_R" onchange="BacklightR_change()"
+								style="width:240px;" /></div>
+						<div>G<input type="range" min="0" max="255" value="0" id="BL_G" onchange="BacklightG_change()"
+								style="width:240px;" /></div>
+						<div>B<input type="range" min="0" max="255" value="0" id="BL_B" onchange="BacklightB_change()"
+								style="width:240px;" /></div>
+					</div>
+				</div>
+			</div>
+			<div id="txt_3">
+				<div class="card" style="position:relative;">
+				</div>
+			</div>
+			<div id="txt_4">
+				<div class="card">
+					<h2>Режим соединения</h2>
+					<table>
+						<tr>
+							<td colspan="2" width="50%" class="col1">
+								<label>
+									<input type="radio" name="mode" value="1" id="mode_o1"
+										onchange="wifimode(1);" />Точка доступа
+								</label>
+							</td>
+							<td colspan="2" class="col2">
+								<label><input type="radio" name="mode" value="2" id="mode_o2"
+										onchange="wifimode(2);" />Доступные сети</label>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2" class="col1"></td>
+							<td colspan="2" class="col2">
+								<div>
+									<button id="refresh_wifi">Обновить список</button>
+								</div>
+								<form name="form2">
+									<div>
+										<select style="width: 160px;" id="net_list" size="3"
+											onchange="checkwifi();"></select>
+									</div>
+								</form>
+							</td>
+						</tr>
+						<tr>
+							<td style="font-size:10pt;" align="right" class="col1">Имя</td>
+							<td style="font-size:10pt;" align="left" class="col1"><input style="width:106px;" size="13"
+									id="ap_name" /></td>
+							<td style="font-size:10pt;" align="right" class="col2">Имя</td>
+							<td style="font-size:10pt;" align="left" class="col2"><input style="width:106px;" size="13"
+									id="wifi_name" /></td>
+						</tr>
+						<tr>
+							<td style="font-size:10pt;" align="right" class="col1">Пароль</td>
+							<td style="font-size:10pt;" align="left" class="col1">
+								<input style="width:106px;" size="13" type="password" id="ap_pwd" />
+							</td>
+							<td style="font-size:10pt;" align="right" class="col2">Пароль</td>
+							<td style="font-size:10pt;" align="left" class="col2">
+								<input style="width:106px;" size="13" type="password" id="wifi_pwd" />
+							</td>
+						</tr>
+						<tr>
+							<td class="col1"></td>
+							<td class="col1" align="left" class="col2">
+								<input style="font-size:10pt;" type="checkbox" onclick="showpwd('ap_pwd')"
+									id="shpwd1" />
+								<label style="font-size:10pt;" for="shpwd1">Показать</label>
+							</td>
+							<td class="col2"></td>
+							<td class="col2" align="left" class="col2">
+								<input style="font-size:10pt;" type="checkbox" onclick="showpwd('wifi_pwd')"
+									id="shpwd2" />
+								<label style="font-size:10pt;" for="shpwd2">Показать</label>
+							</td>
+						</tr>
+						<tr>
+							<td class="col1" align="right">IP</td>
+							<td class="col1" align="left">
+								<input STYLE="background-color: #bac2ca;" type="text" size="10" readonly="true"
+									id="ip_ap" value="192.168.4.1">
+							</td>
+							<td class="col2" align="right">IP</td>
+							<td class="col2" align="left">
+								<input type="text" size="10"
+									pattern="^((?:(?:^|\.)(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])){4})$" id="ip">
+							</td>
+						</tr>
+					</table>
+					<p>
+					<h2>Сведения о системе</h2>
+					</p>
+					<p align="left" style="margin: 10px;">Версия клиета: 1.0 </p>
+					<div align="left" style="margin: 10px;">Версия микропрограммы: <span id="ProgVer">%ProgVer%</span>
+					</div>
+					<div STYLE="background-color: #e2a0b4;">Обновление прошивки (файл *.bin)
+						<form method='POST' action='/updt' enctype='multipart/form-data'>
+							<input type='file' name='update' required />
+							<input type='submit' value='Обновить' />
+						</form>
+					</div>
+					<p></p>
+					<button align="left" id="restart" class="button">Перезапуск</button> <button align="right" id="save"
+						class="button">Сохранить все настройки</button>
+
+				</div>
+			</div>
+			<div id="txt_5">
+				<div class="card">
+				</div>
+			</div>
+			<div id="txt_6">
+				<div class="card">
+					<form name="form4">
+						<p><textarea rows="30" cols="45" name="log"></textarea></p>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		src = 'https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'
+		var mode;
+		var curr_wnd;
+		var gateway = `ws://${window.location.hostname}/ws`;
+		var websocket;
+		window.addEventListener('load', onLoad);
+		function initWebSocket() {
+			console.log('Trying to open a WebSocket connection...');
+			websocket = new WebSocket(gateway);
+			websocket.onopen = onOpen;
+			websocket.onclose = onClose;
+			websocket.onmessage = onMessage;
+			websocket.onerror = onError;
+		}
+		function onOpen(event) {
+			console.log('Connection opened');
+		}
+		function onError(event) {
+			console.log('ACHTUNG!!! CONNECTION Error!');
+			alert("Нет связи с контроллером.");
+		}
+		function onClose(event) {
+			console.log('Connection closed');
+			setTimeout(initWebSocket, 2000);
+		}
+		function changeMillis(ms) {
+			chart.changeMillis(ms * 100);
+			document.getElementById("chart_scale").value = ms * 36;
+		}
+		function pad(n, width, z) {
+			z = z || '0';
+			n = n + '';
+			return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+		}
+		function msToTime(ms) {
+			var seconds = parseInt(ms / 1000);
+			var minutes = parseInt(seconds / 60, 10);
+			seconds = seconds % 60;
+			var hours = parseInt(minutes / 60, 10);
+			minutes = minutes % 60;
+
+			return hours + ':' + pad(minutes, 2) + ':' + pad(seconds, 2);
+		}
+		// Разбор входящих сообщений
+		function onMessage(event) {
+			var state;
+
+			console.log("Received: " + event.data);
+			obj = JSON.parse(event.data);
+
+			if ('ProgVer' in obj) {
+				document.getElementById('ProgVer').innerHTML = obj.ProgVer;
+			}
+			if ('ProgName' in obj) {
+				document.getElementById('ProgName').innerHTML = obj.ProgName;
+			}
+			if ('WiFiList' in obj) {
+				var objSel = document.form2.net_list;
+				objSel.options.length = 0;
+				var i = 0;
+				console.log("WiFiList: ");
+				for (key in obj) {
+					if (obj[key][i] != null) {
+						console.log(obj[key][i].ListElement);
+						objSel.options[objSel.options.length] = new Option(obj[key][i].ListElement, obj[key][i].ListElement);
+						i++;
+					}
+				}
+			}
+			if ('log' in obj) {
+				document.form4.log.value += obj.log;
+			}
+			if ('ap_name' in obj) {
+				document.getElementById("ap_name").value = obj.ap_name;
+			}
+			if ('ap_pwd' in obj) {
+				document.getElementById("ap_pwd").value = obj.ap_pwd;
+			}
+			if ('wifi_name' in obj) {
+				document.getElementById("wifi_name").value = obj.wifi_name;
+			}
+			if ('wifi_pwd' in obj) {
+				document.getElementById("wifi_pwd").value = obj.wifi_pwd;
+			}
+			if ('ip' in obj) {
+				document.getElementById("ip").value = obj.ip;
+			}
+			if ('MODE' in obj) {
+				document.getElementById('MODE').value = obj.MODE;
+			}
+
+			if ('option' in obj) {
+				if (obj.option == "1") {
+					document.getElementById("mode_o1").checked = true;
+				}
+				else {
+					document.getElementById("mode_o2").checked = true;
+				}
+			}
+			if ('millis' in obj) {
+				document.getElementById("time").value = msToTime(obj.millis);
+			}
+			if ('BRIGHTNESS' in obj) {
+				document.getElementById("BRIGHTNESS").value = obj.BRIGHTNESS;
+			}
+			if ('BL_R' in obj) {
+				document.getElementById("BL_R").value = obj.BL_R;
+			}
+			if ('BL_G' in obj) {
+				document.getElementById("BL_G").value = obj.BL_G;
+			}
+			if ('BL_B' in obj) {
+				document.getElementById("BL_B").value = obj.BL_B;
+			}
+			if ('rssi' in obj) {
+				document.getElementById("wifi_strength").title = obj.rssi + "dBm";
+				switch (true) {
+					case (obj.rssi > -50):
+
+						document.getElementById("wifi_strength").style.left = "-108px";
+						break;
+					case (obj.rssi > -65):
+						document.getElementById("wifi_strength").style.left = "-81px";
+						break;
+					case (obj.rssi > -75):
+						document.getElementById("wifi_strength").style.left = "-54px";
+						break;
+					case (obj.rssi > -85):
+						document.getElementById("wifi_strength").style.left = "-27px";
+						break;
+					default:
+						document.getElementById("wifi_strength").style.left = "0px";
+						break;
+				}
+				obj = null;
+			}
+		}
+		function onLoad(event) {
+			initWebSocket();
+			initButton();
+		}
+		function initButton() {
+			document.getElementById('refresh_wifi').addEventListener('click', get_wifi_list);
+			document.getElementById('restart').addEventListener('click', restart);
+			document.getElementById('save').addEventListener('click', save);
+		}
+		function get_wifi_list() {
+			websocket.send('{\"get_wifi_list\": ""}');
+		}
+		function restart() {
+			websocket.send('{\"restart\": ""}');
+		}
+		function save() {
+			var option = document.getElementsByName('MODE');
+			var option_value;
+			for (var i = 0; i < option.length; i++) {
+				if (option[i].checked) {
+					option_value = option[i].value;
+				}
+			}
+			console.log("option: " + option_value);
+			websocket.send('{\"save\": "", \"ssid\": "' + document.getElementById('wifi_name').value +
+				'", \"ssid_pwd\": "' + document.getElementById('wifi_pwd').value +
+				'", \"ap_name\": "' + document.getElementById('ap_name').value +
+				'", \"ap_pwd\": "' + document.getElementById('ap_pwd').value +
+				'", \"ip\": "' + document.getElementById('ip').value +
+				'"}');
+		}
+		function wifimode(p_mode) {
+			websocket.send('{\"wifi_option\": "' + p_mode + '"}');
+		}
+		function onPotAvgChange() {
+			newValue = document.getElementById('potAvgSlide').value;
+			console.log("newPotAvg = " + newValue);
+			document.getElementById('potAvgText').innerHTML = "" + newValue;
+			websocket.send("{ \"potAvg\": " + newValue + " }");
+		}
+		function ServoChange() {
+			newValue = document.getElementById('servo_value').value;
+			console.log("servo_value = " + newValue);
+			websocket.send("{ \"servo_value\": " + newValue + " }");
+		}
+		function PwrSet() {
+			newValue = document.getElementById('pwr_val').value;
+			document.getElementById('pwr_wnd_val').value = newValue;
+			document.getElementById('pwr_value').value = newValue + "%";
+			document.getElementById('cube1').style.filter = "saturate(" + newValue + "%)";
+			console.log("pwr_value = " + newValue);
+		}
+		function BrightnessChange() {
+			newValue = document.getElementById('BRIGHTNESS').value;
+			websocket.send("{ \"BRIGHTNESS\": \"" + newValue + "\" }");
+		}
+		function BacklightR_change() {
+			newValue = document.getElementById('BL_R').value;
+			websocket.send("{ \"BL_R\": \"" + newValue + "\" }");
+		}
+		function BacklightG_change() {
+			newValue = document.getElementById('BL_G').value;
+			websocket.send("{ \"BL_G\": \"" + newValue + "\" }");
+		}
+		function BacklightB_change() {
+			newValue = document.getElementById('BL_B').value;
+			websocket.send("{ \"BL_B\": \"" + newValue + "\" }");
+		}
+		function deflegmator_on() {
+			document.getElementById('pump2_off').style.visibility = "visible";
+			document.getElementById('valve_horizontal').style.visibility = "visible";
+			document.getElementById('safety_valve').style.visibility = "visible";
+			document.getElementById('4xoff1').style.visibility = "visible";
+			document.getElementById('4xoff2').style.visibility = "visible";
+			document.getElementById('corner0').style.visibility = "visible";
+			document.getElementById('corner_cold1').style.visibility = "visible";
+			document.getElementById('tube_hot_off2').style.visibility = "visible";
+		}
+		function select_mode() {
+			newValue = document.getElementById('MODE').value;
+			console.log("MODE = " + newValue);
+			websocket.send("{ \"MODE\": \"" + newValue + "\" }");
+		}
+		function showpwd(p_input) {
+			var x = document.getElementById(p_input);
+			if (x.type === "password") {
+				x.type = "text";
+			} else {
+				x.type = "password";
+			}
+		}
+		function send_pref() {
+			var l_id = event.target.id;
+			var l_val;
+			var l_send_str;
+			if (event.target.type == "checkbox") {
+				if (event.target.checked) {
+					l_val = "Y";
+				}
+				else {
+					l_val = "N";
+				}
+			}
+			else if (event.target.type == "text") {
+				l_val = event.target.value;
+			}
+			l_send_str = '{\"' + l_id + '\": \"' + l_val + '\"}';
+			console.log(l_send_str);
+			websocket.send(l_send_str);
+		}
+		function checkwifi() {
+			document.getElementById('wifi_name').value = document.form2.net_list.value;
+		}
+		function show_popup_wnd(p_wnd) {
+			curr_wnd = p_wnd;
+			window.location.href = '#' + curr_wnd;
+		}
+		function close_wnd() {
+			console.log("Закрываем окно " + curr_wnd);
+			curr_wnd = "";
+			window.location.href = '#';
+		}
+	</script>
+	</body>
+
+</html>
